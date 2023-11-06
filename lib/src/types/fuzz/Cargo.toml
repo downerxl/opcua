@@ -11,9 +11,11 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 
-[dependencies.opcua]
-path = "../../.."
-features = ["console-logging"]
+[dependencies.opcua-types]
+path = ".."
+
+[dependencies.opcua-console-logging]
+path = "../../console_logging"
 
 # Prevent this from interfering with workspaces
 [workspace]

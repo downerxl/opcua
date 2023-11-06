@@ -210,10 +210,12 @@ impl Session {
         }
 
         // Create a new session state
-        self.session_state = Arc::new(RwLock::new(SessionState::new(
+        let exisisting_message_queue = self.session_state.read().message_queue.clone();
+        self.session_state = Arc::new(RwLock::new(SessionState::new_with_message_queue(
             self.ignore_clock_skew,
             self.secure_channel.clone(),
             self.subscription_state.clone(),
+            exisisting_message_queue, 
         )));
 
         // Keep the existing transport, we should never drop a tokio runtime from a sync function
@@ -685,6 +687,9 @@ impl Session {
         // };
         // let runtime = trace_lock!(runtime);
         // runtime.block_on(task);
+
+        // The above code didn't release the lock and allow the subscriptions to respawn on reconnect.
+        // Creating a fresh runtime to run the session task as it's independent.
         tokio::runtime::Runtime::new().unwrap().block_on(task);
     }
 
